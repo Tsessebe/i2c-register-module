@@ -115,16 +115,26 @@ class I2cRegisterSection:
         return self.msb - self.lsb + 1
 
     def __str__(self):
+        """
+        Gets a string representation of the section.
+        :return: A formatted string.
+        """
         msg = "RegisterSegment<name={}, lsb={}, msb={}, bits={}>"
-        return msg.format(self.name, self.lsb, self.msb, self.bits)
+        bits = self.get_bits()
+        return msg.format(self.name, self.lsb, self.msb, bits)
 
-    def bytes_to_int(self):
-        return I2cRegisterSection.to_int(self.bits)
+    def bits_to_int(self):
+        _bits = self.bits[::-1]
+        return I2cRegisterSection.to_int(_bits)
 
-    def bytes_to_twos_comp_int(self):
+    def bits_to_twos_comp_int(self):
         return I2cRegisterSection.to_twos_comp_int(self.bits)
 
-    def update_bits(self, reg_bytes):
+    def update_bits(self, reg_bytes) -> None:
+        """
+        Updates the bits for the section from byte values
+        :param reg_bytes: The register byte values e.g. [[0xFE],[0xFE]]
+        """
         # Check that bytes array contains values inside lsb and msb range
         min_bytes = I2cRegisterSection.num_bytes_for_bits(self.msb + 1)
         if len(reg_bytes) < min_bytes:
@@ -194,4 +204,9 @@ class I2cRegisterSection:
         return _bits[::-1]
 
     def get_index(self, bit_index):
+        """
+        Gets the section index from the register bit index
+        :param bit_index: The register bit index. The bit order: 7 6 5 4 3 2 1 0
+        :return: The corresponding section bit index
+        """
         return bit_index - self.lsb

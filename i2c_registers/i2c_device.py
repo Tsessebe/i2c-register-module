@@ -20,6 +20,10 @@ class I2cDevice:
         return
 
     def __str__(self):
+        """
+        Gets a string representation of the device.
+        :return: A formatted string.
+        """
         out = "I2cDevice<device_address={}, registers={{\n".format(self.dev_addr)
 
         for k in self.registers:
@@ -47,6 +51,15 @@ class I2cDevice:
 
     def add(self, name: str, address: int, op_mode: RegisterOperations, signed: bool,
             sections: dict[str, I2cRegisterSection]):
+        """
+        Adds a register to the device.
+        :param name: The name of the register.
+        :param address: The address of the register
+        :param op_mode: The operation mode: Read, Write, ReadWrite
+        :param signed: An indicator to determine if the register value iss signed.
+        :param sections: The sections of the Register. (Optional; can pass in {})
+        :return: A Register object with specified name.
+        """
         key = name.upper()
         if key in self.registers:
             raise KeyError("I2cRegister with name already exists. name: {}".format(name))
@@ -59,6 +72,13 @@ class I2cDevice:
         return self.registers[key]
 
     def get(self, name: str, read_first: bool = False) -> I2cRegister:
+        """
+        Gets a Register by name.
+        :param name: The register name.
+        :param read_first: Optional. Perform a physical read first.
+        :return: The I2cRegister for the name provided.
+        :raises KeyError: If the section does not exist.
+        """
         key = name.upper()
         if key not in self.registers:
             raise KeyError("Register with name \"{}\" not found".format(name))
@@ -70,7 +90,21 @@ class I2cDevice:
         return self.registers[key]
 
     def read(self, name: str):
-        return self.get(name).read()
+        """
+        Performs a physical read for the register name provided.
+
+        :param name: The register name
+        """
+        self.get(name).read()
+
+        return
 
     def write(self, name: str):
-        return self.get(name).write()
+        """
+        Performs a physical write for the register name provided.
+
+        :param name: The register name
+        """
+        self.get(name).write()
+
+        return

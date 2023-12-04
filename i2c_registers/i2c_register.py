@@ -33,6 +33,10 @@ class I2cRegister:
         return self.get_value()
 
     def __len__(self):
+        """
+        Gets the length of register in bits.
+        :return: The total number of bits for the register.
+        """
         result = 0
         for section in self.sections:
             result += len(self.sections[section])
@@ -40,6 +44,10 @@ class I2cRegister:
         return result
 
     def __str__(self):
+        """
+        Gets a string representation of the register.
+        :return: A formatted string.
+        """
         result = "Register<name={}, address={}, op_mode={}, sections={{\n"
         result.format(self.name, self.reg_addr, self.op_mode.name)
         for key in self.sections:
@@ -51,12 +59,28 @@ class I2cRegister:
         return result
 
     def set_parent(self, parent):
+        """
+        Sets the Parent Device for the register.
+        :param parent: The parent Device (I2cDevice)
+        """
         self.__parent = parent
 
+        return
+
     def len_bytes(self):
+        """
+        Length of the register in bytes.
+        :return: The total number of bytes for the register.
+        """
         return I2cRegisterSection.num_bytes_for_bits(len(self))
 
     def get_section(self, name: str) -> I2cRegisterSection:
+        """
+        Gets a Register Section by name.
+        :param name: The section name.
+        :return: The I2cRegisterSection for the name provided.
+        :raises KeyError: If the section does not exist.
+        """
         key = name.upper()
         if key not in self.sections:
             raise KeyError("No section found with name: \"{}\"".format(name))
@@ -130,12 +154,21 @@ class I2cRegister:
         return
 
     def get_bit(self, bit_index: int) -> int:
-
+        """
+        Gets the value of the bit for the register bit index.
+        :param bit_index: The register bit index to retrieve.
+        :return: The value for the bit index.
+        """
         section = self.get_section_for_index(bit_index)
         section_bit_index = section.get_index(bit_index)
         return section.bits[section_bit_index]
 
     def set_value(self, value: int, write_after: bool = False) -> None:
+        """
+        Sets the value of the register.
+        :param value: The value to set the register.
+        :param write_after: Optional. Write to the physical device after setting the value.
+        """
         bytes_count = self.len_bytes()
 
         value_bytes = value.to_bytes(bytes_count, "big", signed=self.signed)
@@ -150,6 +183,11 @@ class I2cRegister:
         return
 
     def get_value(self, read_first: bool = False) -> int:
+        """
+        Gets the value of the register.
+        :param read_first: Optional. Perform a physical read first.
+        :return: The value of the register.
+        """
         if read_first:
             self.read()
 
@@ -161,6 +199,12 @@ class I2cRegister:
         return result
 
     def read(self):
+        """
+        Performs a physical read of the register.
+        :raises SystemError: If the parent device has not been set.
+        :raises SystemError: If the read from the physical device fails.
+        :raises AttributeError: If the register is marked as write only.
+        """
         if RegisterOperations.Read & self.op_mode == RegisterOperations.Read:
             # Get number of bytes to read, will raise AssertionError if sections do not create round number of bytes
             bytes_count = self.len_bytes()
@@ -185,8 +229,20 @@ class I2cRegister:
             msg = "Register {} is not set up to allow read operations, op_mode: \"{}\""
             raise AttributeError(msg.format(self.name, self.op_mode.name))
 
+        return
+
     def write(self):
+        """
+        Performs a physical read of the register.
+
+        :raises SystemError: If the parent device has not been set.
+        :raises SystemError: If the read from the physical device fails.
+        :raises AttributeError: If the register is marked as write only.
+        """
         if RegisterOperations.Write & self.op_mode == RegisterOperations.Write:
+
+            if self.__parent is None:
+                raise SystemError("No I2C Device set as parent")
 
             reg_bytes = self._get_bytes()
             try:
@@ -209,6 +265,11 @@ class I2cRegister:
             raise AttributeError(msg.format(self.name, self.op_mode.name))
 
     def get_section_for_index(self, bit_index: int) -> I2cRegisterSection:
+        """
+        Gets a Register Section for the bit index.
+        :param bit_index: The register bit index
+        :return: The I2cRegisterSection for the bit index provided.
+        """
         self._check_sections()
         sec_key = self.__managing_sections[bit_index][0]
         return self.sections.get(sec_key)

@@ -35,6 +35,29 @@ class I2cRegisterSectionTestCase(unittest.TestCase):
             self.section.set_bits(new_bits)
 
 
+class I2cRegisterSectionConversionTestCase(unittest.TestCase):
+
+    def test_bits_to_int(self):
+        self.section = I2cRegisterSection("test", 0, 7, [0, 0, 0, 1, 0, 0, 0, 0])
+        result = self.section.bits_to_int()
+        self.assertEqual(16, result)
+
+    def test_bits_to_twos_comp_int(self):
+        self.section = I2cRegisterSection("test", 0, 7, [0, 0, 0, 1, 0, 0, 0, 0])
+        result = self.section.bits_to_twos_comp_int()
+        self.assertEqual(16, result)
+
+    def test_bits_to_int_nibble(self):
+        self.section = I2cRegisterSection("test", 0, 3, [0, 1, 0, 0])
+        result = self.section.bits_to_int()
+        self.assertEqual(4, result)
+
+    def test_bits_to_twos_comp_int_nibble(self):
+        self.section = I2cRegisterSection("test", 0, 3, [0, 1, 0, 0])
+        result = self.section.bits_to_twos_comp_int()
+        self.assertEqual(4, result)
+
+
 class I2cRegisterSectionToBitsTestCase(unittest.TestCase):
     def test_i2c_register_section_to_bits(self):
         self.assertEqual([0, 0, 0, 0, 1, 1, 0, 0], I2cRegisterSection.to_bits(12, 8))
