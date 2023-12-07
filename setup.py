@@ -7,7 +7,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(
     name="i2c-registers",
-    version="0.0.1rc1",
+    version="0.1.0",
     description="Python wrapper library around the common I2C controller register pattern.",
     url="https://github.com/tsessebe/i2c-register-module",
     author="Francois de Wet",
